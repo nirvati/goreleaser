@@ -55,6 +55,16 @@ func TestSimpleName(t *testing.T) {
 	require.Equal(t, "binary", caskNameFor("binary"))
 }
 
+func TestContextForCask(t *testing.T) {
+	ctx := testctx.Wrap(t.Context(), testctx.GitHubTokenType)
+	repo := config.RepoRef{TokenType: "gitlab"}
+
+	clientCtx := contextForCask(ctx, repo)
+
+	require.Equal(t, context.TokenTypeGitLab, clientCtx.TokenType)
+	require.Equal(t, context.TokenTypeGitHub, ctx.TokenType)
+}
+
 var defaultTemplateData = templateData{
 	Description: "Some desc",
 	Homepage:    "https://google.com",

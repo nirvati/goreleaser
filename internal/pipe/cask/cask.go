@@ -184,7 +184,8 @@ func doPublish(ctx *context.Context, cask *artifact.Artifact, cl client.Client) 
 		return nil
 	}
 
-	cl, err = client.NewIfToken(ctx, cl, brew.Repository.Token)
+	clientCtx := contextForCask(ctx, brew.Repository)
+	cl, err = client.NewIfToken(clientCtx, cl, brew.Repository.Token)
 	if err != nil {
 		return err
 	}
@@ -214,7 +215,7 @@ func doPublish(ctx *context.Context, cask *artifact.Artifact, cl client.Client) 
 	}
 
 	log.Info("homebrew_casks.pull_request enabled, creating a PR")
-	prcl, err := client.NewIfToken(ctx, cl, brew.Repository.PullRequest.Token)
+	prcl, err := client.NewIfToken(clientCtx, cl, brew.Repository.PullRequest.Token)
 	if err != nil {
 		return err
 	}
@@ -231,6 +232,15 @@ func doPublish(ctx *context.Context, cask *artifact.Artifact, cl client.Client) 
 		summary.Appendf("Opened pull request to `%s` (homebrew cask `%s`): %s", cmp.Or(base.String(), repo.String()), cask.Name, url)
 	}
 	return nil
+}
+
+func contextForCask(ctx *context.Context, repo config.RepoRef) *context.Context {
+	if repo.TokenType == "" {
+		return ctx
+	}
+	clientCtx := *ctx
+	clientCtx.TokenType = context.TokenType(repo.TokenType)
+	return &clientCtx
 }
 
 func doRun(ctx *context.Context, brew config.HomebrewCask, cl client.ReleaseURLTemplater) error {

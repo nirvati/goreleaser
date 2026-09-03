@@ -48,6 +48,7 @@ func TemplateRef(apply func(s string) (string, error), ref config.RepoRef) (conf
 		Owner:       owner,
 		Name:        name,
 		Token:       ref.Token,
+		TokenType:   ref.TokenType,
 		Branch:      branch,
 		PullRequest: ref.PullRequest,
 		Git: config.GitRepoRef{
